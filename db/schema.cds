@@ -11,6 +11,8 @@ entity Tweets {
 
         place : Association[1..1] to Places on place.id = place_id;
         user : Association[1..1] to Users on user.id = user_id;
+        hashtags : Association[*] to Hashtags on hashtags.tweet_id = id;
+        mentions : Association[*] to Mentions on mentions.tweet_id = id;
 }
 
 entity Users {
@@ -49,4 +51,5 @@ entity Mentions {
     key tweet_id            : UUID          @title : 'TWEET';
 
     tweet : Association[1..1] to Tweets on tweet.id = tweet_id;
+    mentioned: Association[1..1] to Users on mentioned.id = mentioned_user_id;
 }
