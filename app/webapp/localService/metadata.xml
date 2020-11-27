@@ -22,6 +22,10 @@
                     <End Role="Mentions" EntitySet="Mentions"/>
                     <End Role="Tweets" EntitySet="Tweets"/>
                 </AssociationSet>
+                <AssociationSet Name="Mentions_mentioned" Association="CatalogService.Mentions_mentioned">
+                    <End Role="Mentions" EntitySet="Mentions"/>
+                    <End Role="Users" EntitySet="Users"/>
+                </AssociationSet>
                 <AssociationSet Name="Places_tweets" Association="CatalogService.Places_tweets">
                     <End Role="Places" EntitySet="Places"/>
                     <End Role="Tweets" EntitySet="Tweets"/>
@@ -33,6 +37,14 @@
                 <AssociationSet Name="Tweets_user" Association="CatalogService.Tweets_user">
                     <End Role="Tweets" EntitySet="Tweets"/>
                     <End Role="Users" EntitySet="Users"/>
+                </AssociationSet>
+                <AssociationSet Name="Tweets_hashtags" Association="CatalogService.Tweets_hashtags">
+                    <End Role="Tweets" EntitySet="Tweets"/>
+                    <End Role="Hashtags" EntitySet="Hashtags"/>
+                </AssociationSet>
+                <AssociationSet Name="Tweets_mentions" Association="CatalogService.Tweets_mentions">
+                    <End Role="Tweets" EntitySet="Tweets"/>
+                    <End Role="Mentions" EntitySet="Mentions"/>
                 </AssociationSet>
                 <AssociationSet Name="Users_tweets" Association="CatalogService.Users_tweets">
                     <End Role="Users" EntitySet="Users"/>
@@ -56,6 +68,7 @@
                 <Property Name="mentioned_user_id" Type="Edm.Guid" Nullable="false"/>
                 <Property Name="tweet_id" Type="Edm.Guid" Nullable="false"/>
                 <NavigationProperty Name="tweet" Relationship="CatalogService.Mentions_tweet" FromRole="Mentions" ToRole="Tweets"/>
+                <NavigationProperty Name="mentioned" Relationship="CatalogService.Mentions_mentioned" FromRole="Mentions" ToRole="Users"/>
             </EntityType>
             <EntityType Name="Places">
                 <Key>
@@ -81,6 +94,8 @@
                 <Property Name="user_id" Type="Edm.Guid"/>
                 <NavigationProperty Name="place" Relationship="CatalogService.Tweets_place" FromRole="Tweets" ToRole="Places"/>
                 <NavigationProperty Name="user" Relationship="CatalogService.Tweets_user" FromRole="Tweets" ToRole="Users"/>
+                <NavigationProperty Name="hashtags" Relationship="CatalogService.Tweets_hashtags" FromRole="Tweets" ToRole="Hashtags"/>
+                <NavigationProperty Name="mentions" Relationship="CatalogService.Tweets_mentions" FromRole="Tweets" ToRole="Mentions"/>
             </EntityType>
             <EntityType Name="Users">
                 <Key>
@@ -120,6 +135,18 @@
                     </Dependent>
                 </ReferentialConstraint>
             </Association>
+            <Association Name="Mentions_mentioned">
+                <End Role="Mentions" Type="CatalogService.Mentions" Multiplicity="*"/>
+                <End Role="Users" Type="CatalogService.Users" Multiplicity="1"/>
+                <ReferentialConstraint>
+                    <Principal Role="Users">
+                        <PropertyRef Name="id"/>
+                    </Principal>
+                    <Dependent Role="Mentions">
+                        <PropertyRef Name="mentioned_user_id"/>
+                    </Dependent>
+                </ReferentialConstraint>
+            </Association>
             <Association Name="Places_tweets">
                 <End Role="Places" Type="CatalogService.Places" Multiplicity="*"/>
                 <End Role="Tweets" Type="CatalogService.Tweets" Multiplicity="*"/>
@@ -147,6 +174,14 @@
                         <PropertyRef Name="user_id"/>
                     </Dependent>
                 </ReferentialConstraint>
+            </Association>
+            <Association Name="Tweets_hashtags">
+                <End Role="Tweets" Type="CatalogService.Tweets" Multiplicity="*"/>
+                <End Role="Hashtags" Type="CatalogService.Hashtags" Multiplicity="*"/>
+            </Association>
+            <Association Name="Tweets_mentions">
+                <End Role="Tweets" Type="CatalogService.Tweets" Multiplicity="*"/>
+                <End Role="Mentions" Type="CatalogService.Mentions" Multiplicity="*"/>
             </Association>
             <Association Name="Users_tweets">
                 <End Role="Users" Type="CatalogService.Users" Multiplicity="*"/>
