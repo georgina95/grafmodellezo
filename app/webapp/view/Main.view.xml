@@ -1,14 +1,20 @@
 <mvc:View
-    controllerName="elte.grafmodellezo.app.controller.Main"
+    controllerName="grafmodellezo.app.controller.Main"
     xmlns:mvc="sap.ui.core.mvc"
     displayBlock="true"
-    xmlns="sap.m"
->
+    xmlns="sap.m">
+
 	<Shell id="shell">
 		<App id="app">
 			<pages>
 				<Page id="page" title="{i18n>title}">
-					<content />
+                    <Button text="PressMe" press="onPress" />
+                    <Button text="Read" press="onPressRead" />
+					<List items="{Twitter>/Tweets}">
+                        <items>                            
+                            <StandardListItem title="{Twitter>text}"/>
+                        </items>
+                    </List>
 				</Page>
 			</pages>
 		</App>
