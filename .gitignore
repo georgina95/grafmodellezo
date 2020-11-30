@@ -32,6 +32,7 @@ mta_archives/
 CF_CREDS.sh
 Makefile*
 .env
+package-lock.json
 /mta_archives/
 fioriHtmlRunner.html
 .*/fioriHtmlRunner.html
