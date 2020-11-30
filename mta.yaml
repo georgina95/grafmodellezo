@@ -1,0 +1,212 @@
+## Generated mta.yaml based on yo sap-partner-eng version 0.3.00
+## appName = grafmodellezo
+## language=nodejs; multiTenant=false
+## approuter=grafmodellezo-app
+_schema-version: '3.1'
+ID: grafmodellezo
+version: 0.0.1
+description: Cloud Application Programming(CAP) with Multitenancy using Service Manger Tenant Data Separation
+parameters:
+   enable-parallel-deployments: true
+  
+  
+build-parameters:
+  before-all:
+   - builder: custom
+     commands:
+      - npm install
+      - npx -p @sap/cds-dk cds build
+
+modules:
+
+### New Modules Here ###
+
+# cf push grafmodellezo-hdb -p db -k 512M -m 512M
+ - name: grafmodellezo-hdb
+   type: hdb
+   path: db
+   build-parameters:
+      # Don't package the dependencies if you're running into EINTEGRITY issues
+      ignore: ["default-env.json", "node_modules/"]
+      # Suppress the calling of npm install by listing no commands
+      builder: custom
+      commands: []
+   parameters:
+      memory: 512M
+      disk-quota: 512M
+   requires:
+    - name: grafmodellezo-hdi
+
+# cf push grafmodellezo-srv -p srv -n ${org}-${space}-grafmodellezo-srv -d cfapps.eu10.hana.ondemand.com -k 1024M -m 512M
+ - name: grafmodellezo-srv
+   type: nodejs
+   build-parameters:
+      # Don't package the dependencies if you're running into EINTEGRITY issues
+      ignore: ["default-env.json", "node_modules/"]
+      # Suppress the calling of npm install by listing no commands
+      builder: custom
+      commands: []
+   path: srv
+   properties:
+      LOG_LEVEL: debug
+      EXIT: 1  # required by deploy.js task to terminate
+      SAP_JWT_TRUST_ACL: [{"clientid":"*","identityzone":"sap-provisioning"}]  # Trust between server and SaaS Manager
+      NODE_DEBUG: 'instance-manager'
+      # cf set-env grafmodellezo-srv CF_API_USER $CF_API_USER
+      # cf set-env grafmodellezo-srv CF_API_PW $CF_API_PW
+      # cf restage grafmodellezo-srv
+      CF_API_USER: user@domain.com
+      CF_API_PW: xxxxxx
+   parameters:
+      memory: 512M
+      disk-quota: 1024M
+      #host: ${org}-${space}-grafmodellezo-srv
+      #domain: cfapps.eu10.hana.ondemand.com
+   provides:
+    - name: grafmodellezo_svc_api
+      properties:
+         url: ${default-url}
+   requires:
+    - name: grafmodellezo-hdi
+    - name: grafmodellezo-uaa
+    - name: grafmodellezo-reg
+    - name: grafmodellezo-smc
+
+
+# cf push grafmodellezo-app -p app -n grafmodellezo-app -d cfapps.eu10.hana.ondemand.com -k 256M -m 256M
+ - name: grafmodellezo-app
+   type: html5
+   path: app
+   build-parameters:
+      # Don't package the dependencies if you're running into EINTEGRITY issues
+      ignore: ["default-env.json", "node_modules/"]
+      # Suppress the calling of npm install by listing no commands
+      builder: custom
+      commands: []
+   parameters:
+      #host: ${org}-${space}-grafmodellezo-app
+      #domain: cfapps.eu10.hana.ondemand.com
+      #routes:
+      #  - route: grafmodellezo-app-${space}-${app-name}.${default-domain}
+      disk-quota: 256M
+      memory: 256M
+   provides:
+    - name: Router_api
+      properties:
+         url: ${default-url}
+         application: ${app-name}
+# CDS-MTX
+   properties:
+      TENANT_HOST_PATTERN: '^(.*)-${space}-${app-name}.${default-domain}'
+   requires:
+   # cf bind-service grafmodellezo-app grafmodellezo_UAA
+    - name: grafmodellezo-uaa
+   ### New Destinations Here ###
+    - name: grafmodellezo_svc_api
+      group: destinations
+      properties:
+         name: grafmodellezo_svc_be
+         url: ~{url}
+         forwardAuthToken: true
+
+resources:
+
+# cf create-service xsuaa application grafmodellezo_UAA -c ./cds-security.json
+ - name: grafmodellezo-uaa
+   type: org.cloudfoundry.managed-service
+   requires:
+    - name: Router_api
+   properties:
+      XSAPPNAME: ${xsuaa-app}
+   parameters:
+      # Re-run the following command after changing any @(requires: []) definitions in srv/*.cds
+      # Run this from the root of the project and uncomment the path:
+      # cds compile srv/ --to xsuaa,json > cds-security.json
+      #path: ./cds-security.json
+      # The combination of path: and config.scopes: Doesn't seem work.  Use one or the other.
+      # cds compile srv/ --to xsuaa,yaml and make sure the config: below matches
+      #path: ./cds-security.json
+      #path: ./xs-security.json
+      service: xsuaa
+      service-plan: application
+      service-name: grafmodellezo_UAA
+      xsuaa-app: ${space}-~{Router_api/application}
+      # Define within config what used to be in the xs-security.json file.  path: now pulls in cds scopes/role templates
+      # Convert with https://www.json2yaml.com/
+      # https://github.wdf.sap.corp/pages/cap/guides/authorization#role-assignments-with-xsuaa
+      config:
+         xsappname: ${xsuaa-app}
+         ### tenant-mode
+         tenant-mode: shared
+         description: Security profile of the grafmodellezo application
+         scopes:
+          - name: "$XSAPPNAME.Callback"
+            description: With this scope set, the callbacks for tenant onboarding, offboarding and getDependencies can be called.
+            grant-as-authority-to-apps: 
+             - "$XSAPPNAME(application,sap-provisioning,tenant-onboarding)"
+          - name: "$XSAPPNAME.Administrator"
+            description: Administrate the application
+          - name: "$XSAPPNAME.User"
+            description: Use the application
+         role-templates:
+          - name: Administrator
+            description: Administrator
+            scope-references:
+             - "$XSAPPNAME.Administrator"
+          - name: User
+            description: User Required
+            scope-references:
+             - "$XSAPPNAME.User"
+         oauth2-configuration:
+            redirect-uris: 
+             - "http*://*.${default-domain}/**"
+
+### New Resources Here ###
+
+# cf create-service hana hdi-shared grafmodellezo_HDI -c '{"config":{"schema":""}}'
+ - name: grafmodellezo-hdi
+   type: com.sap.xs.hdi-container
+   parameters:
+      service-name: grafmodellezo_HDI
+      config:
+         schema: 
+
+# CAP-MTX Managed HANA (Internal Service Manager)
+ - name: grafmodellezo-smc
+   type: org.cloudfoundry.managed-service
+   requires:
+    - name: grafmodellezo-uaa
+   parameters:
+      service: service-manager
+      service-plan: container
+      service-name: grafmodellezo_SMC
+      polling_timeout_seconds: 240
+      config:
+         acquireTimeoutMillis: max
+         polling_timeout_seconds: 480
+
+# Multitenant Registration(using CAP-MTX style url)
+# Manually add route after tenant subscription
+# cf map-route grafmodellezo-app cfapps.eu10.hana.ondemand.com --hostname xxxmtxsmsbi-dev-grafmodellezo-app
+ - name: grafmodellezo-reg
+   type: org.cloudfoundry.managed-service
+   requires:
+    - name: grafmodellezo-uaa
+   parameters:
+      service: saas-registry
+      service-plan: application
+      service-name: grafmodellezo_REG
+      config:
+         xsappname: ~{grafmodellezo-uaa/XSAPPNAME}
+         appName: grafmodellezo-${org}-${space}
+         displayName: grafmodellezo-${org}-${space}
+         description: 'grafmodellezo Multitenant App'
+         category: 'grafmodellezo Category'
+         appUrls:
+            onSubscription: https://${org}-${space}-grafmodellezo-srv.${default-domain}/mtx/v1/provisioning/tenant/{tenantId}
+            onSubscriptionAsync: false
+            onUnSubscriptionAsync: false
+            #callbackTimeoutMillis: 300000
+
+
+

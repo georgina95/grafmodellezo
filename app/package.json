@@ -1,0 +1,18 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "devDependencies": {},
+  "dependencies": {
+    "@sap/approuter": "^7"
+  },
+  "scripts": {
+    "start": "node node_modules/@sap/approuter/approuter.js"
+  },
+  "files": [
+    "webapp",
+    "package.json",
+    "xs-app.json"
+  ]
+}

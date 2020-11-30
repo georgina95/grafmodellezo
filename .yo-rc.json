@@ -1,0 +1,31 @@
+{
+  "generator-sap-partner-eng": {
+    "package_version": "0.3.00",
+    "project_name": "grafmodellezo",
+    "app_name": "grafmodellezo",
+    "app_desc": "Cloud Application Programming(CAP) with Multitenancy using Service Manger Tenant Data Separation",
+    "router_name": "grafmodellezo-app",
+    "domain_name": "cfapps.eu10.hana.ondemand.com",
+    "router_path": "app",
+    "database_path": "db",
+    "services_path": "srv",
+    "uaa_res_name": "grafmodellezo-uaa",
+    "uaa_svc_name": "grafmodellezo_UAA",
+    "database_name": "grafmodellezo-hdb",
+    "db_schema_name": "",
+    "hdi_res_name": "grafmodellezo-hdi",
+    "hdi_svc_name": "grafmodellezo_HDI",
+    "services_type": "nodejs",
+    "java_package": "my.company",
+    "services_name": "grafmodellezo-srv",
+    "services_api": "grafmodellezo_svc_api",
+    "services_be": "grafmodellezo_svc_be",
+    "services_route": "catalog",
+    "tests_path": "integration-tests",
+    "multitenant_enabled": true,
+    "reg_res_name": "grafmodellezo-reg",
+    "reg_svc_name": "grafmodellezo_REG",
+    "mgd_res_name": "grafmodellezo-smc",
+    "mgd_svc_name": "grafmodellezo_SMC"
+  }
+}
