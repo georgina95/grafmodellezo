@@ -36,19 +36,19 @@
     "other": "latest"
   },
   "dependencies": {
-    "@sap/xsenv": "latest",
-    "@sap/xssec": "^2",
     "@sap/cds": "3.34.2",
     "@sap/cds-mtx": "1.0.16",
-    "@sap/instance-manager": "^2.2",
-    "@sap/hdi-deploy": "^3",
     "@sap/hana-client": "^2",
-    "nodemon": "^2",
-    "cfenv": "latest",
-    "passport": "^0.4.1",
+    "@sap/hdi-deploy": "^3",
+    "@sap/instance-manager": "^2.2",
+    "@sap/xsenv": "latest",
+    "@sap/xssec": "^2",
+    "body-parser": "latest",
+    "cfenv": "^1.2.3",
     "express": "^4.17.1",
     "hdb": "^0.17.2",
-    "body-parser": "latest"
+    "nodemon": "^2",
+    "passport": "^0.4.1"
   },
   "devDependencies": {},
   "scripts": {
