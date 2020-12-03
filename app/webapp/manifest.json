@@ -16,10 +16,10 @@
 		},
         "dataSources": {
             "CatalogService": {
-				"uri": "/catalog/",
+				"uri": "/catalog/v2/",
 				"type": "OData",
 				"settings": {
-					"odataVersion": "4.0"
+					"odataVersion": "2.0"
 				}
 			}
         }
@@ -68,13 +68,14 @@
                 }
             },
             "catalogModel": {
-				"dataSource": "CatalogService",
+                "type": "sap.ui.model.odata.v2.ODataModel",
 				"settings": {
-					"synchronizationMode": "None",
-					"operationMode": "Server",
-					"groupId": "$auto",
-					"autoExpandSelect": true
-				}
+					"defaultOperationMode": "Server",
+					"defaultBindingMode": "OneWay",
+					"defaultCountMode": "Request"
+				},
+				"preload": true,
+				"dataSource": "CatalogService"
 			}
         },
         "resources": {

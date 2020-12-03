@@ -19,9 +19,9 @@
       "authenticationType": "xsuaa"
     },
     {
-      "source": "(catalog/)(.*)",
+      "source": "(catalog/v2/)(.*)",
       "destination": "grafmodellezo_svc_be",
-      "csrfProtection": true,
+      "csrfProtection": false,
       "authenticationType": "xsuaa"
     },
     {

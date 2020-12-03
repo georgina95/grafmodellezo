@@ -10,9 +10,9 @@
 				<Page id="page" title="{i18n>title}">
                     <Button text="PressMe" press="onPress" />
                     <Button text="Read" press="onPressRead" />
-					<List items="{Twitter>/Tweets}">
+					<List items="{catalogModel>/Orders}">
                         <items>                            
-                            <StandardListItem title="{Twitter>text}"/>
+                            <StandardListItem title="{catalogModel>ID}"/>
                         </items>
                     </List>
 				</Page>
